@@ -1,0 +1,4 @@
+{
+    "jwtSecretKey": "AlphaBetaGamma",
+    "LocalDatabaseURL": "mongodb://localhost:27017/Railway"
+}
