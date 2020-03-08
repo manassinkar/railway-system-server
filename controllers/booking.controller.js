@@ -213,6 +213,7 @@ async function updateNotificationData(aadhaarNo,booking)
                 message: "Join the journey",
                 target: array
             });
+            console.log(notification);
             await notification.save(async (er) =>
             {
                 if(er)
@@ -238,6 +239,7 @@ async function updateUser(booking,data)
         seatNo: data.seat,
         age: data.age
     };
+    console.log(occupiedObj);
     await User.update({ aadhaarNo : data.passenger },{ occupied: occupiedObj },async (err) =>
     {
         if(err)
@@ -279,7 +281,6 @@ async function matchLocation(location,bookingID)
         }
         else
         {
-            console.log(booking);
             await Train.findOne({ number: booking.trainNo },{ latitude: 1, longitude: 1 },async (er,train) =>
             {
                 if(er)
@@ -288,11 +289,9 @@ async function matchLocation(location,bookingID)
                 }
                 else
                 {
-                    console.log(train.latitude, train.longitude);
                     var distance = getDistanceFromLatLonInKm(train.latitude,train.longitude,location.latitude,location.longitude);
                     if(distance<=2)
                     {
-                        console.log('works',distance);
                         return true;
                     }
                     else
@@ -308,7 +307,6 @@ async function matchLocation(location,bookingID)
 exports.occupySeats = (req,res) =>
 {
     var matchLoc = matchLocation(req.body.location,req.body.bookingID);
-    console.log("Variable",matchLoc);
     if(!matchLoc)
     {
         res.status(401).send({ message: "You are not near the train to perform occupy seats" });
