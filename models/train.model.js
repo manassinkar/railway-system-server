@@ -3,22 +3,25 @@ var Schema = mongoose.Schema;
 
 var seat = new Schema({
     number: { type: Number, required: true },
-    occupied: { type: Boolean, required: true }
+    occupied: { type: Boolean, required: true },
+    occupiedByAadhaar: { type: Number, required: true }
 },{ _id: false });
 
 var coach = new Schema({
     name: { type: String, required: true },
-    Seats: { type: [seat], required: true }
+    seats: { type: [seat], required: true }
 },{ _id: false })
 
 var train = new Schema({
     name: { type: String, required: true },
-    Number: { type: Number, required: true },
-    Source: { type: String, required: true },
-    Destination: { type: String, required: true },
-    DurationMins: { type: Number, required: true },
-    Stations: [String],
-    coaches:[coach]
+    number: { type: Number, required: true, unique: true },
+    source: { type: String, required: true },
+    destination: { type: String, required: true },
+    durationMins: { type: Number, required: true },
+    stations: [String],
+    coaches:[coach],
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true }
 });
 
 var Train = mongoose.model('train',train);

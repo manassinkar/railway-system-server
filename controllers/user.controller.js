@@ -5,7 +5,7 @@ let data = require('../data');
 
 exports.login = (req,res) =>
 {
-    User.findOne({ username: req.body.username },(err,user) =>
+    User.findOne({ aadhaarNo: req.body.aadhaarNo },(err,user) =>
     {
         if(err)
         {
@@ -15,39 +15,30 @@ exports.login = (req,res) =>
         {
             if(user)
             {
-                bcrypt.compare(req.body.password,user.password,(er,success) =>
+                var success = bcrypt.compareSync(req.body.password,user.password);    
+                if(success)
                 {
-                    if(er)
-                    {
-                        res.status(500).send({ message: "Error while checking password", error: er });
+                    var obj = {
+                        aadhaarNo: user.aadhaarNo,
+                        username: user.username,
+                        TC: user.TC
                     }
-                    else
+                    jwt.sign(obj,data.jwtSecretKey,(e,token) =>
                     {
-                        if(success)
+                        if(e)
                         {
-                            var obj = {
-                                aadhaarNo: user.aadhaarNo,
-                                username: user.username,
-                                TC: user.TC
-                            }
-                            jwt.sign(obj,data.jwtSecretKey,(e,token) =>
-                            {
-                                if(e)
-                                {
-                                    res.status(500).send({ message: 'Authentication Failed', metaMessage: 'Token Generation Failed', error: e });
-                                }
-                                else
-                                {
-                                    res.status(200).send({ message: 'Login Successful', token: token, TC: user.TC });
-                                }
-                            });
+                            res.status(500).send({ message: 'Authentication Failed', metaMessage: 'Token Generation Failed', error: e });
                         }
                         else
                         {
-                            res.status(401).send({ message: "Wrong Password" });
+                            res.status(200).send({ message: 'Login Successful', token: token, TC: user.TC });
                         }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    res.status(401).send({ message: "Wrong Password" });
+                }
             }
             else
             {
@@ -60,6 +51,7 @@ exports.login = (req,res) =>
 exports.register = (req,res) =>
 {
     var user = new User(req.body.user);
+    user.TC = false
     user.save((err) =>
     {
         if(err)
@@ -69,6 +61,36 @@ exports.register = (req,res) =>
         else
         {
             res.status(200).send({ message: "User Registered Successfully" });
+        }
+    });
+};
+
+exports.makeTC = (req,res) =>
+{
+    User.updateOne({ aadhaarNo: req.body.aadhaarNo },{ TC: true },(err,ans) =>
+    {
+        if(err)
+        {
+            res.status(500).send({ message: "TC Creation Failed", error: err });
+        }
+        else
+        {
+            res.status(200).send({ message: "TC Created Successfully" });
+        }
+    });
+};
+
+exports.getProfile = (req,res) =>
+{
+    User.findOne({ aadhaarNo: req.aadhaarNo },{ password: 0 },(err,user) =>
+    {
+        if(err)
+        {
+            res.status(500).send({ message: "Error while fetching user information", error:err });
+        }
+        else
+        {
+            res.status(200).send(user);
         }
     });
 };

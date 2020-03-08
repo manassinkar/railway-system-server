@@ -2,8 +2,9 @@ let express = require('express');
 let router = express.Router();
 let tC = require('../controllers/train.controller');
 
-// router.post('/login',uC.login);
-// router.post('/register',uC.register);
-// router.use('/dashboard',require('./dashboard.route'));
+router.post('/createTrain',tC.createTrain);
+router.get('/getAllTrains',tC.getAllTrains);
+router.get('/getTrain',tC.getTrain);
+router.post('/updateTrainLocation',tC.updateTrainLocation);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 {
     "jwtSecretKey": "AlphaBetaGamma",
+    "CloudDatabaseURL": "mongodb+srv://admin:admin@railway-suqwe.mongodb.net/test?retryWrites=true&w=majority",
     "LocalDatabaseURL": "mongodb://localhost:27017/Railway"
 }
