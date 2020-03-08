@@ -215,7 +215,7 @@ async function occupyNewSeats(booking,seats,train)
 
 async function removePastNotificationData(aadhaarNo)
 {
-    await Notification.update({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
+    await Notification.updateMany({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
     {
         if(error)
         {
@@ -243,6 +243,7 @@ async function updateUser(booking,data)
     {
         if(err)
         {
+            console.log(err);
             return false;
         }
         else
