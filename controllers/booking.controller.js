@@ -196,7 +196,7 @@ async function updateNotificationData(aadhaarNo,booking)
 {
     await Notification.updateMany({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
     {
-        if(err)
+        if(error)
         {
             return false;
         }
