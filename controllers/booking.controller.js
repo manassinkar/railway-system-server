@@ -301,12 +301,12 @@ function matchLocation(location,bookingID)
             });
         }
     });
-    Train.findOne()
 };
 
 exports.occupySeats = (req,res) =>
 {
     var matchLoc = matchLocation(req.body.location,req.body.bookingID);
+    console.log(matchLoc);
     if(!matchLoc)
     {
         res.status(401).send({ message: "You are not near the train to perform occupy seats" });
