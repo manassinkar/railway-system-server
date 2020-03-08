@@ -305,7 +305,7 @@ function matchLocation(location)
 
 exports.occupySeats = (req,res) =>
 {
-    var matchLoc = matchLocation(location);
+    var matchLoc = matchLocation(req.body.location);
     if(!matchLoc)
     {
         res.status(401).send({ message: "You are not near the train to perform occupy seats" });
