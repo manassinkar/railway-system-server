@@ -262,7 +262,6 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
         ; 
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
     var d = R * c; // Distance in km
-    console.log("Distance",d);
     return d;
 }
   
@@ -280,6 +279,7 @@ function matchLocation(location,bookingID)
         }
         else
         {
+            console.log(booking);
             Train.findOne({ number: booking.trainNo },{ latitude: 1, longitude: 1 },(er,train) =>
             {
                 if(er)
@@ -288,9 +288,11 @@ function matchLocation(location,bookingID)
                 }
                 else
                 {
+                    console.log(train.latitude, train.longitude);
                     var distance = getDistanceFromLatLonInKm(train.latitude,train.longitude,location.latitude,location.longitude);
                     if(distance<=2)
                     {
+                        console.log('works',distance);
                         return true;
                     }
                     else
@@ -306,7 +308,7 @@ function matchLocation(location,bookingID)
 exports.occupySeats = (req,res) =>
 {
     var matchLoc = matchLocation(req.body.location,req.body.bookingID);
-    console.log(matchLoc);
+    console.log("Variable",matchLoc);
     if(!matchLoc)
     {
         res.status(401).send({ message: "You are not near the train to perform occupy seats" });
