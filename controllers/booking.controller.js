@@ -213,7 +213,6 @@ async function updateNotificationData(aadhaarNo,booking)
                 message: "Join the journey",
                 target: array
             });
-            console.log(notification);
             await notification.save(async (er) =>
             {
                 if(er)
@@ -239,7 +238,7 @@ async function updateUser(booking,data)
         seatNo: data.seat,
         age: data.age
     };
-    console.log(occupiedObj);
+    console.log(data.passenger);
     await User.update({ aadhaarNo : data.passenger },{ occupied: occupiedObj },async (err) =>
     {
         if(err)
