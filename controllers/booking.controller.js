@@ -269,9 +269,9 @@ function deg2rad(deg) {
     return deg * (Math.PI/180)
 }
 
-function matchLocation(location)
+function matchLocation(location,bookingID)
 {
-    Booking.findOne({ _id: req.body.bookingID },{ trainNo: 1 },(err,booking) =>
+    Booking.findOne({ _id: bookingID },{ trainNo: 1 },(err,booking) =>
     {
         if(err)
         {
@@ -305,7 +305,7 @@ function matchLocation(location)
 
 exports.occupySeats = (req,res) =>
 {
-    var matchLoc = matchLocation(req.body.location);
+    var matchLoc = matchLocation(req.body.location,req.body.bookingID);
     if(!matchLoc)
     {
         res.status(401).send({ message: "You are not near the train to perform occupy seats" });
