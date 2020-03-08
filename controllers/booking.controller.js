@@ -177,45 +177,30 @@ async function occupyNewSeats(booking,seats,train)
         train.coaches[coachIndex].seats[data.seat-1].occupied = true;
         train.coaches[coachIndex].seats[data.seat-1].occupiedByAadhaar = data.passenger;
         var y = updateUser(booking,data);
-        var x = updateNotificationData(data.passenger,booking);
+        var x = removePastNotificationData(data.passenger);
     });
-    train.save((e) =>
+    var array = booking.seats.map(element =>element.passenger);
+    array.splice(array.indexOf(booking.aadhaarNo),1);
+    var notification = new Notification({
+        PNR: booking.PNR,
+        trainNo: booking.trainNo,
+        timestamp: booking.timestamp,
+        bookingID: booking._id,
+        seats: booking.seats,
+        message: "Join the journey",
+        target: array
+    });
+    await notification.save(async (er) =>
     {
-        if(e)
+        if(er)
         {
             return false;
         }
         else
         {
-            return true;
-        }
-    });
-}
-
-async function updateNotificationData(aadhaarNo,booking)
-{
-    await Notification.updateMany({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
-    {
-        if(error)
-        {
-            return false;
-        }
-        else
-        {
-            var array = booking.seats.map(element =>element.passenger);
-            array.splice(array.indexOf(booking.aadhaarNo),1);
-            var notification = new Notification({
-                PNR: booking.PNR,
-                trainNo: booking.trainNo,
-                timestamp: booking.timestamp,
-                bookingID: booking._id,
-                seats: booking.seats,
-                message: "Join the journey",
-                target: array
-            });
-            await notification.save(async (er) =>
+            await train.save(async (e) =>
             {
-                if(er)
+                if(e)
                 {
                     return false;
                 }
@@ -224,6 +209,21 @@ async function updateNotificationData(aadhaarNo,booking)
                     return true;
                 }
             });
+        }
+    });
+}
+
+async function removePastNotificationData(aadhaarNo)
+{
+    await Notification.update({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
+    {
+        if(error)
+        {
+            return false;
+        }
+        else
+        {
+            return true
         }
     });
 };
@@ -239,7 +239,7 @@ async function updateUser(booking,data)
         age: data.age
     };
     console.log(data.passenger);
-    await User.update({ aadhaarNo : data.passenger },{ occupied: occupiedObj },async (err) =>
+    await User.findOneAndUpdate({ aadhaarNo : data.passenger },{ occupied: occupiedObj },async (err,user) =>
     {
         if(err)
         {
@@ -247,6 +247,7 @@ async function updateUser(booking,data)
         }
         else
         {
+            console.log(user);
             return true;
         }
     });
