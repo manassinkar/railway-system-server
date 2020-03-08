@@ -108,9 +108,9 @@ exports.getAllBookings = (req,res) =>
     });
 };
 
-function unOccupyPreviousIfAny(aadhaarNo)
+async function unOccupyPreviousIfAny(aadhaarNo)
 {
-    User.findOne({ aadhaarNo: aadhaarNo },(err,user) =>
+    await User.findOne({ aadhaarNo: aadhaarNo }, async (err,user) =>
     {
         if(err)
         {
@@ -120,7 +120,7 @@ function unOccupyPreviousIfAny(aadhaarNo)
         {
             if(user.occupied)
             {
-                Booking.findOne({ _id: user.occupied.bookingID },(er,booking)=>
+                await Booking.findOne({ _id: user.occupied.bookingID },async (er,booking)=>
                 {
                     if(er)
                     {
@@ -128,7 +128,7 @@ function unOccupyPreviousIfAny(aadhaarNo)
                     }
                     else
                     {
-                        Train.findOne({ number: booking.trainNo },(e,train) =>
+                        await Train.findOne({ number: booking.trainNo },async (e,train) =>
                         {
                             if(e)
                             {
@@ -144,7 +144,7 @@ function unOccupyPreviousIfAny(aadhaarNo)
                                     train.coaches[coachIndex].seats[data.seat-1].occupied = false;
                                     train.coaches[coachIndex].seats[data.seat-1].occupiedBy = 0;
                                 });
-                                train.save((erro) =>
+                                await train.save(async (erro) =>
                                 {
                                     if(erro)
                                     {
@@ -168,7 +168,7 @@ function unOccupyPreviousIfAny(aadhaarNo)
     })
 };
 
-function occupyNewSeats(booking,seats,train)
+async function occupyNewSeats(booking,seats,train)
 {
     var coach = booking.coachName;
     var coachIndex = parseInt(coach.slice(1))-1;
@@ -192,9 +192,9 @@ function occupyNewSeats(booking,seats,train)
     });
 }
 
-function updateNotificationData(aadhaarNo,booking)
+async function updateNotificationData(aadhaarNo,booking)
 {
-    Notification.updateMany({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },(error) =>
+    await Notification.updateMany({ target: { $elemMatch:{ $eq: aadhaarNo } } },{ $pull: { target: aadhaarNo } },async (error) =>
     {
         if(err)
         {
@@ -213,7 +213,7 @@ function updateNotificationData(aadhaarNo,booking)
                 message: "Join the journey",
                 target: array
             });
-            notification.save((er) =>
+            await notification.save(async (er) =>
             {
                 if(er)
                 {
@@ -228,7 +228,7 @@ function updateNotificationData(aadhaarNo,booking)
     });
 };
 
-function updateUser(booking,data)
+async function updateUser(booking,data)
 {
     var occupiedObj = {
         bookingID: booking._id,
@@ -238,7 +238,7 @@ function updateUser(booking,data)
         seatNo: data.seat,
         age: data.age
     };
-    User.update({ aadhaarNo : data.passenger },{ occupied: occupiedObj },(err) =>
+    await User.update({ aadhaarNo : data.passenger },{ occupied: occupiedObj },async (err) =>
     {
         if(err)
         {
@@ -251,7 +251,7 @@ function updateUser(booking,data)
     });
 };
 
-function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+async function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below
     var dLon = deg2rad(lon2-lon1); 
@@ -265,13 +265,13 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     return d;
 }
   
-function deg2rad(deg) {
+async function deg2rad(deg) {
     return deg * (Math.PI/180)
 }
 
-function matchLocation(location,bookingID)
+async function matchLocation(location,bookingID)
 {
-    Booking.findOne({ _id: bookingID },{ trainNo: 1 },(err,booking) =>
+    await Booking.findOne({ _id: bookingID },{ trainNo: 1 },async (err,booking) =>
     {
         if(err)
         {
@@ -280,7 +280,7 @@ function matchLocation(location,bookingID)
         else
         {
             console.log(booking);
-            Train.findOne({ number: booking.trainNo },{ latitude: 1, longitude: 1 },(er,train) =>
+            await Train.findOne({ number: booking.trainNo },{ latitude: 1, longitude: 1 },async (er,train) =>
             {
                 if(er)
                 {
