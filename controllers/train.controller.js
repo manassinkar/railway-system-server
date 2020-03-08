@@ -1,5 +1,6 @@
 let Train = require('../models/train.model');
 let Booking = require('../models/booking.model');
+let User = require('../models/user.model');
 
 exports.createTrain = (req,res) =>
 {
@@ -90,6 +91,15 @@ function unOccupy(booking,train)
     return train
 }
 
+function updateUsers(train,booking)
+{
+    var passengers = booking.seats.map(elem=> elem.passenger);
+    User.update({ aadhaarNo: { $in: passengers } },{ $unset: { occupied: "" } },(err,ans) =>
+    {
+        return true;
+    });
+}
+
 exports.updateTrainLocation = (req,res) =>
 {
     Train.findOneAndUpdate({ _id: req.body.trainID },{ latitude: req.body.latitude, longitude: req.body.longitude },{ new: true },(err,train) =>
@@ -113,6 +123,7 @@ exports.updateTrainLocation = (req,res) =>
                         bookings.forEach((booking) =>
                         {
                             train = unOccupy(booking,train);
+                            var x = updateUsers(train,booking);
                         });
                         train.save((e) =>
                         {
